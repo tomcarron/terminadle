@@ -5,11 +5,21 @@
 // Define the size of the word and grid
 #define SIZE 5 
 
+// ANSI color codes
+#define RESET "\033[0m" 
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN "\033[36m"
+#define WHITE "\033[37m"
+
 // Function for printing the current grid (5x5)
-void printGrid(char grid[SIZE][SIZE]) {
+void printGrid(char grid[SIZE][SIZE], char* colorgrid[SIZE][SIZE]) {
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-            printf("%c ", grid[i][j]);
+            printf("%s%c " RESET, colorgrid[i][j], grid[i][j]);
         }
         printf("\n");
     }
@@ -47,6 +57,8 @@ void updateGrid(char grid[SIZE][SIZE], char guess[SIZE], int row) {
     }
 }
 
+
+
 int main() {
     title();
     // Placeholder grid for now
@@ -57,11 +69,18 @@ int main() {
         {'*', '*', '*', '*', '*'},
         {'*', '*', '*', '*', '*'}
     };
+    char* colorgrid[SIZE][SIZE] = {
+        {WHITE, WHITE, WHITE, WHITE, WHITE},
+        {WHITE, WHITE, WHITE, WHITE, WHITE},
+        {WHITE, WHITE, WHITE, WHITE, WHITE},
+        {WHITE, WHITE, WHITE, WHITE, WHITE},
+        {WHITE, WHITE, WHITE, WHITE, WHITE}
+    };
 
     // Placeholder word for now
     char word[SIZE] = {'A', 'U', 'D', 'I', 'O'};
 
-    printGrid(grid);
+    printGrid(grid, colorgrid);
     // printWord(word);
 
     char guess[SIZE + 1]; // Extra space for null terminator
@@ -70,7 +89,7 @@ int main() {
     for (int i = 0; i < 6; i++) { // Assume maximum of 6 guesses
         getGuess(guess);
         updateGrid(grid, guess, i);
-        printGrid(grid);
+        printGrid(grid, colorgrid); // Print the grid after each guess
     }
 
     return 0;
