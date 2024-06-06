@@ -32,9 +32,7 @@ void getGuess(char guess[SIZE + 1]) {
         // Clear the input buffer
         while (getchar() != '\n');
         // Ensure the word is exactly 5 letters long
-        printf("%ld\n",strlen(guess));
         if (strlen(guess) == SIZE) {
-            printf("valid\n");
             valid = 1;
         } else {
             printf("Error: You must enter exactly 5 letters.\n");
@@ -42,7 +40,12 @@ void getGuess(char guess[SIZE + 1]) {
     }
 }
 
-
+// Function to update the grid with the guess
+void updateGrid(char grid[SIZE][SIZE], char guess[SIZE], int row) {
+    for (int j = 0; j < SIZE; j++) {
+        grid[row][j] = guess[j];
+    }
+}
 
 int main() {
     title();
@@ -59,17 +62,17 @@ int main() {
     char word[SIZE] = {'A', 'U', 'D', 'I', 'O'};
 
     printGrid(grid);
-    printWord(word);
+    // printWord(word);
 
     char guess[SIZE + 1]; // Extra space for null terminator
 
     // Loop to get multiple guesses
     for (int i = 0; i < 6; i++) { // Assume maximum of 6 guesses
         getGuess(guess);
-        // Further logic to compare the guess with the word and update the grid can be added here
+        updateGrid(grid, guess, i);
+        printGrid(grid);
     }
 
     return 0;
 }
-
 
