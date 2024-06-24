@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "intro.h"
@@ -18,6 +19,7 @@
 
 // Function for printing the current grid (5x5)
 void printGrid(char grid[SIZE][SIZE], char* colorgrid[SIZE][SIZE]) {
+    system("clear"); // Clear the terminal
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
             printf("%s%c " RESET, colorgrid[i][j], grid[i][j]);
@@ -57,12 +59,28 @@ void getGuess(char guess[SIZE+1]) {
 
 
 // Function to update the colorgrid with the guess
-void updateColorGrid(char *colorgrid[SIZE][SIZE], char* colors[SIZE], int row) {  
+void updateColorGrid(char* colorgrid[SIZE][SIZE], char* colors[SIZE], int row) {  
     for (int j = 0; j < SIZE; j++) {
         colorgrid[row][j] = colors[j];
     }
 }
-void checkGuess(char guess[SIZE], char answer[SIZE], int row, char* colorgrid[SIZE][SIZE]) {
+
+// Function to check if the user has won
+void checkWin(char* colors[SIZE], int row, char grid[SIZE][SIZE], char* colorgrid[SIZE][SIZE]) {
+    int win = 1;
+    for (int i = 0; i < SIZE; i++) {
+        if (colors[i] != GREEN) {
+            win = 0;
+        }
+    }
+    if (win == 1) {
+        printGrid(grid, colorgrid); // add here some logic to print 1 guess or n guesses.
+        printf("Congratulations! You have won the game in %d guesses.\n", row + 1);
+        exit(0);
+    }
+}
+
+void checkGuess(char guess[SIZE], char answer[SIZE], int row, char grid[SIZE][SIZE], char* colorgrid[SIZE][SIZE]) {
     // array to store colors of this guess
     char* colors[SIZE] = {WHITE, WHITE, WHITE, WHITE, WHITE};
     // Check if the guess is correct
@@ -80,7 +98,10 @@ void checkGuess(char guess[SIZE], char answer[SIZE], int row, char* colorgrid[SI
         }
     }
     updateColorGrid(colorgrid, colors, row);
+    checkWin(colors, row, grid, colorgrid);
 }
+
+
 
 // Function to update the grid with the guess
 void updateGrid(char grid[SIZE][SIZE], char guess[SIZE], char answer[SIZE], int row, char* colorgrid[SIZE][SIZE]) {
@@ -88,7 +109,7 @@ void updateGrid(char grid[SIZE][SIZE], char guess[SIZE], char answer[SIZE], int 
     for (int j = 0; j < SIZE; j++) {
         grid[row][j] = guess[j];
     }
-    checkGuess(guess, answer, row, colorgrid);
+    checkGuess(guess, answer, row, grid, colorgrid);
 }
 
 
@@ -122,7 +143,7 @@ int main() {
     char guess[SIZE + 1]; // Extra space for null terminator
 
     // Loop to get multiple guesses
-    for (int i = 0; i < 5; i++) { // Assume maximum of 6 guesses
+    for (int i = 0; i < 5; i++) { // Assume maximum of 5 guesses
         getGuess(guess);
         updateGrid(grid, guess, answer, i, colorgrid);
         printGrid(grid, colorgrid); // Print the grid after each guess
