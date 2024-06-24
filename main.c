@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <curl/curl.h>
+#include <cjson/cJSON.h> 
 #include "intro.h"
+
 
 // Define the size of the word and grid
 #define SIZE 5 
@@ -16,6 +19,60 @@
 #define MAGENTA "\033[35m"
 #define CYAN "\033[36m"
 #define WHITE "\033[37m"
+
+
+
+// Callback function to handle the HTTP response
+size_t WriteCallback(void *contents, size_t size, size_t nmemb, char **output) {
+    size_t totalSize = size * nmemb;
+    *output = realloc(*output, totalSize + 1);
+    memcpy(*output, contents, totalSize);
+    (*output)[totalSize] = '\0';
+    return totalSize;
+}
+
+// Function to retrieve the word of the day from the Go app. The endpoint is /word-of-the-day and returns {"word":"mango"} as an example. This function should then return "MANGO".
+char* getWordOfTheDay() {
+    CURL *curl;
+    CURLcode res;
+    char *output = NULL;
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:8080/word-of-the-day");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &output);
+
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+
+        curl_easy_cleanup(curl);
+    }
+
+    curl_global_cleanup();
+
+    // Parse the JSON response to extract the value of the "word" key
+    char* word = NULL;
+    cJSON* json = cJSON_Parse(output);
+    if (json) {
+        cJSON* wordJson = cJSON_GetObjectItemCaseSensitive(json, "word");
+        if (cJSON_IsString(wordJson) && (wordJson->valuestring != NULL)) {
+            // Capitalize the word
+            word = strdup(wordJson->valuestring);
+            for (int i = 0; i < strlen(word); i++) {
+                word[i] = toupper(word[i]);
+            }
+        }
+        cJSON_Delete(json);
+    }
+
+    free(output);
+
+    return word;
+}
 
 // Function for printing the current grid (5x5)
 void printGrid(char grid[SIZE][SIZE], char* colorgrid[SIZE][SIZE]) {
@@ -116,7 +173,8 @@ void updateGrid(char grid[SIZE][SIZE], char guess[SIZE], char answer[SIZE], int 
 
 int main() {
     title();
-    char answer[SIZE] = {'A', 'U', 'D', 'I', 'O'};
+    char* answer = getWordOfTheDay();
+        //printf("%s", answer);
 
     // Placeholder grid for now
     char grid[SIZE][SIZE] = {
