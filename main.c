@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "intro.h"
 
 // Define the size of the word and grid
@@ -34,11 +35,14 @@ void printWord(char word[SIZE]) {
 }
 
 // Function to get a guess from the user
-void getGuess(char guess[SIZE + 1]) {
+void getGuess(char guess[SIZE+1]) {
     int valid = 0;
     while (valid != 1) {
         printf("Enter your guess: ");
-        scanf("%5s", guess);
+        scanf(" %5s", guess);
+        for (int i = 0; i < SIZE; i++) {
+            guess[i] = toupper(guess[i]);
+        }
         // Clear the input buffer
         while (getchar() != '\n');
         // Ensure the word is exactly 5 letters long
@@ -50,17 +54,49 @@ void getGuess(char guess[SIZE + 1]) {
     }
 }
 
+
+
+// Function to update the colorgrid with the guess
+void updateColorGrid(char *colorgrid[SIZE][SIZE], char* colors[SIZE], int row) {  
+    for (int j = 0; j < SIZE; j++) {
+        colorgrid[row][j] = colors[j];
+    }
+}
+void checkGuess(char guess[SIZE], char answer[SIZE], int row, char* colorgrid[SIZE][SIZE]) {
+    // array to store colors of this guess
+    char* colors[SIZE] = {WHITE, WHITE, WHITE, WHITE, WHITE};
+    // Check if the guess is correct
+    for (int i = 0; i < SIZE; i++) {
+        // check if each letter is in the word and in the correct position
+        if (guess[i] == answer[i]) {
+            colors[i] = GREEN; // update the corresponding grid cell with the green color
+        } else {
+            // check if the letter is in the word but in the wrong position
+            for (int j = 0; j < SIZE; j++) {
+                if (guess[i] == answer[j]) {
+                    colors[i] = YELLOW; // update the corresponding grid cell with the yellow color
+                }
+            }
+        }
+    }
+    updateColorGrid(colorgrid, colors, row);
+}
+
 // Function to update the grid with the guess
-void updateGrid(char grid[SIZE][SIZE], char guess[SIZE], int row) {
+void updateGrid(char grid[SIZE][SIZE], char guess[SIZE], char answer[SIZE], int row, char* colorgrid[SIZE][SIZE]) {
+    printf("Updating grid with guess: %s\n", guess);    
     for (int j = 0; j < SIZE; j++) {
         grid[row][j] = guess[j];
     }
+    checkGuess(guess, answer, row, colorgrid);
 }
 
 
 
 int main() {
     title();
+    char answer[SIZE] = {'A', 'U', 'D', 'I', 'O'};
+
     // Placeholder grid for now
     char grid[SIZE][SIZE] = {
         {'*', '*', '*', '*', '*'},
@@ -86,9 +122,9 @@ int main() {
     char guess[SIZE + 1]; // Extra space for null terminator
 
     // Loop to get multiple guesses
-    for (int i = 0; i < 6; i++) { // Assume maximum of 6 guesses
+    for (int i = 0; i < 5; i++) { // Assume maximum of 6 guesses
         getGuess(guess);
-        updateGrid(grid, guess, i);
+        updateGrid(grid, guess, answer, i, colorgrid);
         printGrid(grid, colorgrid); // Print the grid after each guess
     }
 
