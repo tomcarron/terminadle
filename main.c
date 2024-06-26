@@ -146,8 +146,9 @@ void checkGuess(char guess[SIZE], char answer[SIZE], int row, char grid[SIZE][SI
     memcpy(tempanswer, answer, SIZE);
     for (int i = 0; i < SIZE; i++) {
         // check if each letter is in the word and in the correct position
-        if (guess[i] == answer[i]) {
+        if (guess[i] == tempanswer[i]) {
             colors[i] = GREEN; // update the corresponding grid cell with the green color
+            tempanswer[i] = dummy; // mark the letter in the answer array to avoid reusing it
         } else {
             // check if the letter is in the word but in the wrong position
 
