@@ -76,7 +76,7 @@ char* getWordOfTheDay() {
 
 // Function for printing the current grid (5x5)
 void printGrid(char grid[SIZE][SIZE], char* colorgrid[SIZE][SIZE]) {
-    system("clear"); // Clear the terminal
+    //system("clear"); // Clear the terminal
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
             printf("%s%c " RESET, colorgrid[i][j], grid[i][j]);
@@ -140,16 +140,22 @@ void checkWin(char* colors[SIZE], int row, char grid[SIZE][SIZE], char* colorgri
 void checkGuess(char guess[SIZE], char answer[SIZE], int row, char grid[SIZE][SIZE], char* colorgrid[SIZE][SIZE]) {
     // array to store colors of this guess
     char* colors[SIZE] = {WHITE, WHITE, WHITE, WHITE, WHITE};
+    char dummy = '0'; // dummy character to mark the answer array
     // Check if the guess is correct
+    char tempanswer[SIZE];
+    memcpy(tempanswer, answer, SIZE);
     for (int i = 0; i < SIZE; i++) {
         // check if each letter is in the word and in the correct position
-        if (guess[i] == answer[i]) {
+        if (guess[i] == tempanswer[i]) {
             colors[i] = GREEN; // update the corresponding grid cell with the green color
+            tempanswer[i] = dummy; // mark the letter in the answer array to avoid reusing it
         } else {
             // check if the letter is in the word but in the wrong position
+
             for (int j = 0; j < SIZE; j++) {
-                if (guess[i] == answer[j]) {
+                if (guess[i] == tempanswer[j]) {
                     colors[i] = YELLOW; // update the corresponding grid cell with the yellow color
+                    tempanswer[j] = dummy; // mark the letter in the answer array to avoid reusing it
                 }
             }
         }
